@@ -125,7 +125,7 @@
                 let key;
                 if (card.id === "attendees")  { key = "attendees" };
                 if (card.id === "interviews") { key = "interviews" };
-                if (card.id === "new jobs")   { key =  "new jobs" };
+                if (card.id === "jobs")       { key = "jobs" };
 
                 const recordId = RECORD_IDS[key];
                 if (!recordId) return;
@@ -139,7 +139,7 @@
                 const response = await fetch("/api/counter");
                 const data = await response.json();
                 if (!data.counters) return;
-                
+
                 Object.keys(data.counters).forEach(key => {
                     const count = data.counters[key].number;
                     const recordId = data.counters[key].recordId;
@@ -147,7 +147,7 @@
                     RECORD_IDS[key.toLowerCase()] = recordId;
                     if (key === "Attendees")  document.getElementById("aCount").innerText = count;
                     if (key === "Interviews") document.getElementById("iCount").innerText = count;
-                    if (key === "New Jobs")   document.getElementById("jCount").innerText = count;
+                    if (key === "Jobs")   document.getElementById("jCount").innerText = count;
                 });
                 document.getElementById("time").innerText = new Date().toLocaleTimeString();
             }
