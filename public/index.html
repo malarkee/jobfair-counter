@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Live Tally</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Bergen Mono', monospace;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            flex: 1;
+            padding: 40px;
+            background: #F7F9FC;
+            text-align: center;
+        }
+        
+        .cards {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            margin-top: 8%;
+            gap: 5%;
+        }
+
+        .card {
+            width: 25%;
+            padding: 4%;
+            border: 6px solid white;
+            border-radius: 16px;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .label {
+            font-size: 56px;
+        }
+
+        .number {
+            font-size: 220px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        #attendees        { background: #b43131; }
+        #jobs             { background: #227444; }
+        #interviews       { background: #4F7CFF; }
+
+        footer {
+            background: #e2e2e2;
+            color: #6b6b6b;
+            height: 10%;
+            padding-left: 2%;
+            padding-right: 2%;
+            
+            border-top: 2px solid rgb(175, 175, 175);
+            font-size: 56px;
+            
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .splitbox {
+            text-align: right;
+            width: 50%;
+        }
+
+        .logos {
+            width: 50%;
+            gap: 2%;
+            display: flex;
+            align-items: center;
+            justify-content: left;
+        }
+
+        img {
+            width: 18%;
+            margin-right: 2%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cards">
+            <div class="card" id="attendees">
+                <div class="label">Attendees</div>
+                <div class="number"><span id="aCount">0</span></div>
+            </div>
+            <div class="card" id="interviews">
+                <div class="label">Interviews</div>
+                <div class="number"><span id="jCount">0</span></div>
+            </div>
+            <div class="card" id="jobs">
+                <div class="label">Secured Jobs</div>
+                <div class="number"><span id="iCount">0</span></div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <div class="logos">
+            <img src="https://echofl.org/wp-content/uploads/2018/09/EchoLogo_with_tagline_PNG.png"/>
+            <img src="https://images.squarespace-cdn.com/content/v1/5cedb5d9538cc40001d283d4/ab9a16ff-a31e-42bc-919e-0ea1d11d6d75/New+Hope+2025_Standard+%28small%29tight.png" style="width: 30%;"/>
+            <img src="https://bettertogetherus.org/wp-content/uploads/2024/06/better-together-logo.svg"/>
+        </div>
+        <div class="splitbox">
+            Last Updated <span id="time"></span>
+        </div>
+    </footer>
+    <script>
+        let RECORD_IDS = {};
+
+        document.querySelectorAll(".card").forEach(card => {
+            const numberId = card.querySelector(".number span");
+            card.addEventListener("click", (e) => {
+                const count = (parseInt(numberId.innerText, 10) || 0);
+                const delta = e.shiftKey ? (count > 0 ? -1 : 0) : 1;
+
+                let key;
+                if (card.id === "attendees") key = "attendees";
+                if (card.id === "interviews") key = "interviews";
+                if (card.id === "new jobs") key = "new jobs";
+
+                const recordId = RECORD_IDS[key];
+                if (!recordId) return;
+
+                updateCounter(recordId, delta, numberId);
+            });
+        });
+
+        async function fetchData() {
+            try {
+                const response = await fetch("/api/counter");
+                const data = await response.json();
+
+                if (!data.counters) return;
+                Object.keys(data.counters).forEach(key => {
+                    const count = data.counters[key].number;
+                    const recordId = data.counters[key].recordId;
+
+                    RECORD_IDS[key.toLowerCase()] = recordId;
+                    if (key === "Attendees")  document.getElementById("aCount").innerText = count;
+                    if (key === "Interviews") document.getElementById("iCount").innerText = count;
+                    if (key === "New Jobs")   document.getElementById("jCount").innerText = count;
+                });
+                document.getElementById("time").innerText = new Date().toLocaleTimeString();
+            }
+            catch (error) {
+                console.error("Fetch error:", error);
+            }
+        }
+
+        async function updateDate(recordId, delta, element) {
+            try {
+                const response = await fetch("/api/update", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ recordId, delta })
+                });
+                const data = await response.json();
+                if (data.counter !== undefined) {
+                    element.innerText = data.counter 
+                }
+            }
+            catch (error) {
+                console.error("Update error:", error);
+            }
+        }
+
+        fetchData();
+        setInterval(fetchData, 10000);
+    </script>
+</body>
+</html>
