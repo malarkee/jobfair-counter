@@ -130,7 +130,7 @@
                 const recordId = RECORD_IDS[key];
                 if (!recordId) return;
 
-                updateCounter(recordId, delta, numberId);
+                updateData(recordId, delta, numberId);
             });
         });
 
@@ -156,7 +156,7 @@
             }
         }
 
-        async function updateDate(recordId, delta, element) {
+        async function updateData(recordId, delta, element) {
             try {
                 const response = await fetch("/api/update", {
                     method: "POST",
