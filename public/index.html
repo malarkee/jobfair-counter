@@ -48,9 +48,9 @@
             margin: 10px 0;
         }
 
-        #attendees        { background: #b43131; }
-        #jobs             { background: #227444; }
-        #interviews       { background: #4F7CFF; }
+        #attendees  { background: #b43131; }
+        #jobs       { background: #227444; }
+        #interviews { background: #4F7CFF; }
 
         footer {
             background: #e2e2e2;
@@ -97,7 +97,7 @@
                 <div class="label">Interviews</div>
                 <div class="number"><span id="iCount">0</span></div>
             </div>
-            <div class="card" id="new jobs">
+            <div class="card" id="jobs">
                 <div class="label">Secured Jobs</div>
                 <div class="number"><span id="jCount">0</span></div>
             </div>
@@ -114,6 +114,14 @@
         </div>
     </footer>
     <script>
+        
+        const TYPE_MAP = {
+            "Attendees"  : "attendees",
+            "Interviews" : "interviews",
+            "New Jobs"   : "jobs",
+            "Jobs"       : "jobs"
+        };
+
         let RECORD_IDS = {};
 
         document.querySelectorAll(".card").forEach(card => {
@@ -122,11 +130,7 @@
                 const count = (parseInt(numberId.innerText, 10) || 0);
                 const delta = e.shiftKey ? (count > 0 ? -1 : 0) : 1;
 
-                let key;
-                if (card.id === "attendees")  { key = "attendees" };
-                if (card.id === "interviews") { key = "interviews" };
-                if (card.id === "new jobs")   { key = "new jobs" };
-
+                const key = card.id;
                 const recordId = RECORD_IDS[key];
                 if (!recordId) return;
 
@@ -144,10 +148,16 @@
                     const count = data.counters[key].number;
                     const recordId = data.counters[key].recordId;
 
-                    RECORD_IDS[key.toLowerCase()] = recordId;
-                    if (key === "Attendees")  document.getElementById("aCount").innerText = count;
-                    if (key === "Interviews") document.getElementById("iCount").innerText = count;
-                    if (key === "New Jobs")       document.getElementById("jCount").innerText = count;
+                    const mappedKey = TYPE_MAP[key];
+                    if (!mappedKey) return;
+
+                    RECORD_IDS[mappedKey] = recordId;
+                    if (mappedKey === "attendees")  
+                        document.getElementById("aCount").innerText = count;
+                    if (mappedKey === "interviews") 
+                        document.getElementById("iCount").innerText = count;
+                    if (mappedKey === "jobs")   
+                        document.getElementById("jCount").innerText = count;
                 });
                 document.getElementById("time").innerText = new Date().toLocaleTimeString();
             }
