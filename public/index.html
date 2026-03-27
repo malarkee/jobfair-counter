@@ -97,7 +97,7 @@
                 <div class="label">Interviews</div>
                 <div class="number"><span id="iCount">0</span></div>
             </div>
-            <div class="card" id="jobs">
+            <div class="card" id="new jobs">
                 <div class="label">Secured Jobs</div>
                 <div class="number"><span id="jCount">0</span></div>
             </div>
@@ -125,7 +125,7 @@
                 let key;
                 if (card.id === "attendees")  { key = "attendees" };
                 if (card.id === "interviews") { key = "interviews" };
-                if (card.id === "jobs")       { key = "jobs" };
+                if (card.id === "new jobs")   { key = "new jobs" };
 
                 const recordId = RECORD_IDS[key];
                 if (!recordId) return;
@@ -147,7 +147,7 @@
                     RECORD_IDS[key.toLowerCase()] = recordId;
                     if (key === "Attendees")  document.getElementById("aCount").innerText = count;
                     if (key === "Interviews") document.getElementById("iCount").innerText = count;
-                    if (key === "Jobs")   document.getElementById("jCount").innerText = count;
+                    if (key === "New Jobs")       document.getElementById("jCount").innerText = count;
                 });
                 document.getElementById("time").innerText = new Date().toLocaleTimeString();
             }
