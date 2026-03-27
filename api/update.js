@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         const newValue = oldValue + delta;
 
         const patchResponse = await fetch(
-            `https://api.airtable.com/v0/${baseId}/Tallies/${recordId}`,
+            `https://api.airtable.com/v0/${baseId}/${table}/${recordId}`,
             {
                 method: "PATCH",
                 headers: {

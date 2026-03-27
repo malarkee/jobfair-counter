@@ -95,11 +95,11 @@
             </div>
             <div class="card" id="interviews">
                 <div class="label">Interviews</div>
-                <div class="number"><span id="jCount">0</span></div>
+                <div class="number"><span id="iCount">0</span></div>
             </div>
             <div class="card" id="jobs">
                 <div class="label">Secured Jobs</div>
-                <div class="number"><span id="iCount">0</span></div>
+                <div class="number"><span id="jCount">0</span></div>
             </div>
         </div>
     </div>
@@ -123,9 +123,9 @@
                 const delta = e.shiftKey ? (count > 0 ? -1 : 0) : 1;
 
                 let key;
-                if (card.id === "attendees") key = "attendees";
-                if (card.id === "interviews") key = "interviews";
-                if (card.id === "new jobs") key = "new jobs";
+                if (card.id === "attendees")  { key = "attendees" };
+                if (card.id === "interviews") { key = "interviews" };
+                if (card.id === "new jobs")   { key =  "new jobs" };
 
                 const recordId = RECORD_IDS[key];
                 if (!recordId) return;
@@ -138,8 +138,8 @@
             try {
                 const response = await fetch("/api/counter");
                 const data = await response.json();
-
                 if (!data.counters) return;
+                
                 Object.keys(data.counters).forEach(key => {
                     const count = data.counters[key].number;
                     const recordId = data.counters[key].recordId;
