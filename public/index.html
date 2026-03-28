@@ -2,6 +2,7 @@
 <html>
 <head>
     <title> Live Tally</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         /* basic stylesheet */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -84,7 +85,7 @@
         
 
         /* smaller laptop/tablet screens */
-        @media (max-width: 1360px) {
+        @media (max-width: 1600px) and (min-width: 769px) {
             .container  { padding: 20px; }
             .cards      { gap: 40px; }
             .category   { width: 100%; }
@@ -103,7 +104,7 @@
         @media (max-width: 768px) {
             .container  { padding: 40px; justify-content: center; }
             .cards      { flex-direction: column; align-items: center; gap: 40px; }
-            .category   { width: 60%; }
+            .category   { width: 90%; }
             .card       { border: 3px solid white; border-radius: 12px;
                           box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
             }
@@ -184,7 +185,6 @@
     </footer>
     
     <script>
-        
         /* set up window and display modes */
         const savedMode = localStorage.getItem("displayMode");
         const mode_toggle = document.getElementById("display-toggle");
@@ -211,14 +211,14 @@
             palette_toggle.innerText = mode ? "Light" : "Dark";
         });
 
+        let RECORD_IDS = {};
         const TYPE_MAP = {
             "Attendees"  : "attendees",
             "Interviews" : "interviews",
             "New Jobs"   : "jobs",
         };
 
-        let RECORD_IDS = {};
-
+        /* check for control-mode button presses then update database */
         document.querySelectorAll(".button").forEach(button => {
             button.addEventListener("click", () => {
                 const key = button.dataset.key;
@@ -228,28 +228,45 @@
                 if (!recordId) return;
 
                 const numberId = button.closest(".category").querySelector(".card .number span");
-                updateData(recordId, delta, numberId);
+                const count = (parseInt(numberId.innerText, 10) || 0 )
+                
+                if (delta < 0 && count < (delta * -1)) { updateData(recordId, 0, numberId); }
+                else { updateData(recordId, delta, numberId); }
             });
         });
 
-        // document.querySelectorAll(".card").forEach(card => {
-        //     const numberId = card.querySelector(".number span");
-        //     card.addEventListener("click", (e) => {
-        //         const count = (parseInt(numberId.innerText, 10) || 0);
-        //         const delta = e.shiftKey ? (count > 0 ? -1 : 0) : 1;
+        /* animate updates tweening to new values */
+        const activeAnimations = new WeakMap();
+        function animateCount(element, start, end, duration) {
+            if (activeAnimations.has(element)) {
+                cancelAnimationFrame(activeAnimations.get(element));
+            }
 
-        //         const key = card.id;
-        //         const recordId = RECORD_IDS[key];
-        //         if (!recordId) return;
+            const range = end - start;
+            const startTime = performance.now();
+            function step(currentTime) {
+                const elapsed = currentTime - startTime;
+                let t = Math.min(elapsed / duration, 1);
+                const progress = t * t * (3 - 2 * t);
+                
+                element.textContent = Math.floor(start + range * progress);
 
-        //         updateData(recordId, delta, numberId);
-        //     });
-        // });
+                if (t < 1) { 
+                    const id = requestAnimationFrame(step);
+                    activeAnimations.set(element, id);
+                } else { 
+                    element.textContent = end; 
+                }
+            }
+            requestAnimationFrame(step);
+        }
 
+        /* return local-time HOUR:MINUTE AM/PM */
         async function getFormattedTime() {
             document.getElementById("time").innerText = new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
         }
 
+        /* fetch data from database */
         async function fetchData() {
             try {
                 const response = await fetch("/api/counter");
@@ -264,12 +281,14 @@
                     if (!mappedKey) return;
 
                     RECORD_IDS[mappedKey] = recordId;
-                    if (mappedKey === "attendees")  
-                        document.getElementById("aCount").innerText = count;
-                    if (mappedKey === "interviews") 
-                        document.getElementById("iCount").innerText = count;
-                    if (mappedKey === "jobs")   
-                        document.getElementById("jCount").innerText = count;
+                    
+                    let element;
+                    if (mappedKey === "attendees")  element = document.getElementById("aCount");
+                    if (mappedKey === "interviews") element = document.getElementById("iCount");
+                    if (mappedKey === "jobs")       element = document.getElementById("jCount");
+
+                    const startVal = parseInt(element.textContent, 10) || 0;
+                    if (startVal !== count) animateCount(element, startVal, count, 800);
                 });
             }
             catch (error) {
@@ -277,6 +296,7 @@
             }
         }
 
+        /* update data in database from local instance */
         async function updateData(recordId, delta, element) {
             try {
                 const response = await fetch("/api/update", {
@@ -286,7 +306,10 @@
                 });
                 const data = await response.json();
                 if (data.counter !== undefined) {
-                    element.innerText = data.counter 
+                    const startVal = parseInt(element.textContent, 10) || 0;
+                    const count = data.counter;
+
+                    if (startVal !== count) animateCount(element, startVal, count, 500);
                 }
             }
             catch (error) {
@@ -299,6 +322,20 @@
 
         getFormattedTime();
         setInterval(getFormattedTime, 5000);
+
+
+
+        // setInterval(() => {
+        //     const card = document.getElementById("attendees")
+        //     const numberId = card.querySelector(".number span");
+
+        //     const startVal = parseInt(numberId.textContent, 10) || 0;
+        //     const newVal = Math.floor(Math.random() * 1000);
+        //     animateCount(numberId, startVal, newVal, 800);
+        // }, 5000);
+
+
+
     </script>
 </body>
 </html>
