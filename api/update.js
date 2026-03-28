@@ -9,7 +9,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: "Missing recordId or delta" });
         }
         
-        const table  = "Tallies";
+        const table  = "success metric";
         const baseId = process.env.AIRTABLE_BASE_ID;
         const apiKey = process.env.AIRTABLE_API_KEY;
 
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         }
 
         const record   = await getResponse.json();
-        const oldValue = record.fields["No."] || 0;
+        const oldValue = record.fields["Count"] || 0;
         const newValue = oldValue + delta;
 
         const patchResponse = await fetch(
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
                     Authorization: `Bearer ${apiKey}`,
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({fields: { "No.": newValue }})
+                body: JSON.stringify({fields: { "Count": newValue }})
             }
         );
         if (!patchResponse.ok) { 
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         }
 
         const updatedRecord = await patchResponse.json();
-        res.status(200).json({ counter: updatedRecord.fields["No."]} );
+        res.status(200).json({ counter: updatedRecord.fields["Count"]} );
     } 
     catch (error) {
         console.error("Server error:", error);

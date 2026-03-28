@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
     try {
-        const table  = "Tallies";
+        const table  = "success metric";
         const baseId = process.env.AIRTABLE_BASE_ID;
         const apiKey = process.env.AIRTABLE_API_KEY;
 
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
         
         data.records.forEach(record => {
             const type   = record.fields["Type"];
-            const number = record.fields["No."]; 
+            const number = record.fields["Count"] || 0; 
             counters[type] = { number, recordId: record.id };
         });
         res.status(200).json({ counters });
