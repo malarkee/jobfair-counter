@@ -6,10 +6,8 @@
     <style>
         /* basic stylesheet */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body  { height: 100%; }
-        body        { 
-            display: flex; flex-direction: column; font-family: 'Bergen Mono', monospace; 
-        }
+        html, body  { height: 100%; background: #F7F9FC; }
+        body        { display: flex; flex-direction: column; font-family: 'Bergen Mono', monospace; }
         .container  { padding: 40px; background: #F7F9FC; color: white;
                       display: flex; flex: 1; flex-direction: column; justify-content: center; 
         }
@@ -73,6 +71,7 @@
         body.tv-mode .light-toggle:hover  { opacity: 1; }
 
         /* dark-mode */
+        body.dark-mode, html.dark-mode  { background: #06041d;}
         body.dark-mode .container   { background: #06041d }
         body.dark-mode .card        { border-color: #111; }
         body.dark-mode .button      { border-color: #111; opacity: 0.8; }
@@ -102,14 +101,16 @@
 
         /*  moblie devices (phones/smaller tablets)  */
         @media (max-width: 768px) {
-            .container  { padding: 40px; justify-content: center; }
-            .cards      { flex-direction: column; align-items: center; gap: 40px; }
+            .container  { padding: 4vh 4vw; justify-content: center; }
+            .cards      { flex-direction: column; align-items: center; gap: 4vh;
+                          overflow-y: auto; max-height: 80vh;
+            }
             .category   { width: 90%; }
-            .card       { border: 3px solid white; border-radius: 12px;
+            .card       { padding: 2vh; border: 3px solid white; border-radius: 12px;
                           box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
             }
-            .number     { font-size: 48px; }
-            .label      { font-size: 32px; }
+            .number     { font-size: 20vw; }
+            .label      { font-size: 6vw; }
             .buttons    { margin-top: 2%; gap: 4%; }
             .button     { width: 30%; opacity: 1; border: 3px solid white; border-radius: 12px;
                           box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
