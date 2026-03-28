@@ -3,103 +3,172 @@
 <head>
     <title> Live Tally</title>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            font-family: 'Bergen Mono', monospace;
+        /* basic stylesheet */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body  { height: 100%; }
+        body        { 
+            display: flex; flex-direction: column; font-family: 'Bergen Mono', monospace; 
+        }
+        .container  { padding: 40px; background: #F7F9FC; color: white;
+                      display: flex; flex: 1; flex-direction: column; justify-content: center; 
+        }
+        .cards      { display: flex; flex-direction: row; justify-content: space-between; }
+        .category   { display: flex; flex-direction: column; align-content: center;
+                      text-align: center; width: 30%; 
+        }
+        .card       { padding: 12%; border: 6px solid white; border-radius: 16px;
+                      box-shadow: 0 10px 40px rgba(0,0,0,0.4); 
+        }
+        .buttons    { margin-top: 5%; gap: 2%;
+                      display: flex; flex-direction: row; justify-content: space-between; 
+        }
+        .button     { padding-top: 5%; padding-bottom: 5%; width: 50%;
+                      cursor: pointer; opacity: 0.7;    
+                      border: 4px solid white; border-radius: 16px;
+                      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+                      transition: opacity 0.2s ease, transform 0.1s ease;
+        }
+        .button:hover   { opacity: 1; }
+        .button:active  { transform: scale(0.95); }
+        .label          { font-size: 56px; }
+        .number         { font-size: 220px; font-weight: bold; margin: 10px 0; }
+        .attendees      { background: #b43131; }
+        .jobs           { background: #4F7CFF; }
+        .interviews     { background: #227444; }
+        footer          { font-size: 56px; background: #e2e2e2; color: #6b6b6b;
+                          padding: 1% 2%; border-top: 3px solid rgb(175, 175, 175); 
+                          display: flex; align-items: center; justify-content: space-between;
+        }
+        footer img      { width: 18%; margin-right: 2%; }
+        .logos          { width: 50%; gap: 2%;
+                          display: flex; align-items: center; justify-content: left;
         }
 
-        body {
-            display: flex;
-            flex-direction: column;
+        /* tv-mode to control-mode switch */
+        .display-toggle { position: fixed; top: 16px; right: 64px; padding: 4px;
+                          background: #222; color: #fff; border: none; border-radius: 8px;
+                          cursor: pointer; opacity: 0.7;
+                          transition: opacity 0.2s ease, transform 0.1s ease;
         }
+        .display-toggle:hover   { opacity: 1; }
+        .display-toggle:active  { transform: scale(0.95); }
 
-        .container {
-            flex: 1;
-            padding: 40px;
-            background: #F7F9FC;
-            text-align: center;
+        /* light-mode to dark-mode switch */
+        .light-toggle   { position: fixed; top: 16px; right: 16px; padding: 4px; 
+                          background: #222; color: #fff; border: none; border-radius: 8px;
+                          cursor: pointer; opacity: 0.7;
+                          transition: opacity 0.2s ease, transform 0.1s ease;
         }
+        .light-toggle:hover   { opacity: 1; }
+        .light-toggle:active  { transform: scale(0.95); }
+
+        /* tv-mode (hides buttons) */
+        body.tv-mode                        { font-size: 18px; }
+        body.tv-mode .container             { gap: 48px; }
+        body.tv-mode .buttons               { display: none; }
+        body.tv-mode .display-toggle        { opacity: 0.2; }
+        body.tv-mode .display-toggle:hover  { opacity: 1; }
+        body.tv-mode .light-toggle        { opacity: 0.2; }
+        body.tv-mode .light-toggle:hover  { opacity: 1; }
+
+        /* dark-mode */
+        body.dark-mode .container   { background: #06041d }
+        body.dark-mode .card        { border-color: #111; }
+        body.dark-mode .button      { border-color: #111; opacity: 0.8; }
+        body.dark-mode .button:hover    { opacity: 1; }
+        body.dark-mode .button:active   { transform: scale(0.95); }
+
+        body.dark-mode footer           { background: #04043b; border-color: rgb(12, 12, 94); color: #FFF; }
+        body.dark-mode .light-toggle    { background: #FCD917; color: black; opacity: 0.8; }
+        body.dark-mode .display-toggle  { background: #FCD917; color: black; opacity: 0.8; }
         
-        .cards {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            margin-top: 8%;
-            gap: 5%;
+
+        /* smaller laptop/tablet screens */
+        @media (max-width: 1360px) {
+            .container  { padding: 20px; }
+            .cards      { gap: 40px; }
+            .category   { width: 100%; }
+            .card       { padding: 2%; border: 3px solid white; border-radius: 12px; 
+                          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
+            }
+            .number     { font-size: 60px; }
+            .label      { font-size: 32px; }
+            .buttons    { margin-top: 2%; gap: 8px; }
+            .button     { width: 30%; border: 3px solid white; border-radius: 12px; 
+                          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
+            }
         }
 
-        .card {
-            width: 25%;
-            padding: 4%;
-            border: 6px solid white;
-            border-radius: 16px;
-            color: white;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        .label {
-            font-size: 56px;
-        }
-
-        .number {
-            font-size: 220px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-
-        #attendees  { background: #b43131; }
-        #jobs       { background: #227444; }
-        #interviews { background: #4F7CFF; }
-
-        footer {
-            background: #e2e2e2;
-            color: #6b6b6b;
-            height: 10%;
-            padding-left: 2%;
-            padding-right: 2%;
-            
-            border-top: 2px solid rgb(175, 175, 175);
-            font-size: 56px;
-            
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .splitbox {
-            text-align: right;
-            width: 50%;
-        }
-
-        .logos {
-            width: 50%;
-            gap: 2%;
-            display: flex;
-            align-items: center;
-            justify-content: left;
-        }
-
-        img {
-            width: 18%;
-            margin-right: 2%;
+        /*  moblie devices (phones/smaller tablets)  */
+        @media (max-width: 768px) {
+            .container  { padding: 40px; justify-content: center; }
+            .cards      { flex-direction: column; align-items: center; gap: 40px; }
+            .category   { width: 60%; }
+            .card       { border: 3px solid white; border-radius: 12px;
+                          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
+            }
+            .number     { font-size: 48px; }
+            .label      { font-size: 32px; }
+            .buttons    { margin-top: 2%; gap: 4%; }
+            .button     { width: 30%; opacity: 1; border: 3px solid white; border-radius: 12px;
+                          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
+            }
+            footer      { display: none; }
         }
     </style>
 </head>
 <body>
+    <button class="display-toggle" id="display-toggle"> TV Mode </button>
+    <button class="light-toggle" id="light-toggle"> Dark </button>
     <div class="container">
         <div class="cards">
-            <div class="card" id="attendees">
-                <div class="label">Attendees</div>
-                <div class="number"><span id="aCount">0</span></div>
+            <div class="category">
+                <div class="card attendees" id="attendees">
+                    <div class="label">Attendees</div>
+                    <div class="number"><span id="aCount">0</span></div>
+                </div>
+                <div class="buttons">
+                    <div class="button attendees label" data-key="attendees" data-value="-1">-1</div>
+                    <div class="button attendees label" data-key="attendees" data-value="-5">-5</div>
+                    <div class="button attendees label" data-key="attendees" data-value="-10">-10</div>
+                </div>
+                <div class="buttons">
+                    <div class="button attendees label" data-key="attendees" data-value="1">+1</div>
+                    <div class="button attendees label" data-key="attendees" data-value="5">+5</div>
+                    <div class="button attendees label" data-key="attendees" data-value="10">+10</div>
+                </div>
             </div>
-            <div class="card" id="interviews">
-                <div class="label">Interviews</div>
-                <div class="number"><span id="iCount">0</span></div>
+            <div class="category">
+                <div class="card interviews" id="interviews">
+                    <div class="label">Interviews</div>
+                    <div class="number"><span id="iCount">0</span></div>
+                </div>
+                <div class="buttons">
+                    <div class="button interviews label" data-key="interviews" data-value="-1">-1</div>
+                    <div class="button interviews label" data-key="interviews" data-value="-5">-5</div>
+                    <div class="button interviews label" data-key="interviews" data-value="-10">-10</div>
+                </div>
+                <div class="buttons">
+                    <div class="button interviews label" data-key="interviews" data-value="1">+1</div>
+                    <div class="button interviews label" data-key="interviews" data-value="5">+5</div>
+                    <div class="button interviews label" data-key="interviews" data-value="10">+10</div>
+                </div>
             </div>
-            <div class="card" id="jobs">
-                <div class="label">Secured Jobs</div>
-                <div class="number"><span id="jCount">0</span></div>
+            <div class="category">
+                <div class="card jobs" id="jobs">
+                    <div class="label">New Jobs</div>
+                    <div class="number"><span id="jCount">0</span></div>
+                </div>
+                <div class="buttons">
+                    <div class="button jobs label" data-key="jobs" data-value="-1">-1</div>
+                    <div class="button jobs label" data-key="jobs" data-value="-5">-5</div>
+                    <div class="button jobs label" data-key="jobs" data-value="-10">-10</div>
+                </div>
+                <div class="buttons">
+                    <div class="button jobs label" data-key="jobs" data-value="1">+1</div>
+                    <div class="button jobs label" data-key="jobs" data-value="5">+5</div>
+                    <div class="button jobs label" data-key="jobs" data-value="10">+10</div>
+                </div>
             </div>
         </div>
     </div>
@@ -109,34 +178,77 @@
             <img src="https://images.squarespace-cdn.com/content/v1/5cedb5d9538cc40001d283d4/ab9a16ff-a31e-42bc-919e-0ea1d11d6d75/New+Hope+2025_Standard+%28small%29tight.png" style="width: 30%;"/>
             <img src="https://bettertogetherus.org/wp-content/uploads/2024/06/better-together-logo.svg"/>
         </div>
-        <div class="splitbox">
-            Last Updated <span id="time"></span>
+        <div class="label">
+            <span id="time"></span>
         </div>
     </footer>
+    
     <script>
         
+        /* set up window and display modes */
+        const savedMode = localStorage.getItem("displayMode");
+        const mode_toggle = document.getElementById("display-toggle");
+        if (savedMode === "tv" || window.innerWidth >= 1200) {
+            document.body.classList.add("tv-mode");
+            mode_toggle.innerText = "Control Mode";
+        }
+        mode_toggle.addEventListener("click", () => {    // button for toggling display-mode
+            const mode = document.body.classList.toggle("tv-mode");
+            localStorage.setItem("displayMode", mode ? "tv" : "control");
+            mode_toggle.innerText = mode ? "Control Mode" : "TV Mode";
+        });
+
+        /* light mode toggle */
+        const savedPalette = localStorage.getItem("lightMode");
+        const palette_toggle = document.getElementById("light-toggle");
+        if (savedPalette === "dark") {
+            document.body.classList.add("dark-mode");
+            palette_toggle.innerText = "Light"
+        }
+        palette_toggle.addEventListener("click", () => {
+            const mode = document.body.classList.toggle("dark-mode");
+            localStorage.setItem("lightMode", mode ? "dark" : "light");
+            palette_toggle.innerText = mode ? "Light" : "Dark";
+        });
+
         const TYPE_MAP = {
             "Attendees"  : "attendees",
             "Interviews" : "interviews",
             "New Jobs"   : "jobs",
-            "Jobs"       : "jobs"
         };
 
         let RECORD_IDS = {};
 
-        document.querySelectorAll(".card").forEach(card => {
-            const numberId = card.querySelector(".number span");
-            card.addEventListener("click", (e) => {
-                const count = (parseInt(numberId.innerText, 10) || 0);
-                const delta = e.shiftKey ? (count > 0 ? -1 : 0) : 1;
+        document.querySelectorAll(".button").forEach(button => {
+            button.addEventListener("click", () => {
+                const key = button.dataset.key;
+                const delta = (parseInt(button.dataset.value, 10) || 0);
 
-                const key = card.id;
                 const recordId = RECORD_IDS[key];
                 if (!recordId) return;
 
+                const numberId = button.closest(".category").querySelector(".card .number span");
                 updateData(recordId, delta, numberId);
             });
         });
+
+        // document.querySelectorAll(".card").forEach(card => {
+        //     const numberId = card.querySelector(".number span");
+        //     card.addEventListener("click", (e) => {
+        //         const count = (parseInt(numberId.innerText, 10) || 0);
+        //         const delta = e.shiftKey ? (count > 0 ? -1 : 0) : 1;
+
+        //         const key = card.id;
+        //         const recordId = RECORD_IDS[key];
+        //         if (!recordId) return;
+
+        //         updateData(recordId, delta, numberId);
+        //     });
+        // });
+
+        async function getFormattedTime() {
+            document.getElementById("time").innerText = new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+        }
 
         async function fetchData() {
             try {
@@ -159,7 +271,6 @@
                     if (mappedKey === "jobs")   
                         document.getElementById("jCount").innerText = count;
                 });
-                document.getElementById("time").innerText = new Date().toLocaleTimeString();
             }
             catch (error) {
                 console.error("Fetch error:", error);
@@ -185,6 +296,9 @@
 
         fetchData();
         setInterval(fetchData, 10000);
+
+        getFormattedTime();
+        setInterval(getFormattedTime, 5000);
     </script>
 </body>
 </html>
