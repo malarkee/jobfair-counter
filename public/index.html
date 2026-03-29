@@ -42,6 +42,7 @@
         .logos          { width: 50%; gap: 2%;
                           display: flex; align-items: center; justify-content: left;
         }
+        canvas          { pointer-events: none; }
 
         /* tv-mode to control-mode switch */
         .display-toggle { position: fixed; top: 16px; right: 64px; padding: 4px;
@@ -82,7 +83,6 @@
         body.dark-mode .light-toggle    { background: #FCD917; color: black; opacity: 0.8; }
         body.dark-mode .display-toggle  { background: #FCD917; color: black; opacity: 0.8; }
         
-
         /* smaller laptop/tablet screens */
         @media (max-width: 1600px) and (min-width: 769px) {
             .container  { padding: 20px; }
@@ -184,7 +184,7 @@
             <span id="time"></span>
         </div>
     </footer>
-    
+    <script src="https://cdn.jsdelivr.net/npm/@hiseb/confetti@2.1.0/dist/confetti.min.js"></script>
     <script>
         /* set up window and display modes */
         const savedMode = localStorage.getItem("displayMode");
@@ -219,7 +219,7 @@
             "New Jobs"   : "jobs",
         };
 
-        /* check for control-mode button presses then update database */
+        /* check for button presses then update database */
         document.querySelectorAll(".button").forEach(button => {
             button.addEventListener("click", () => {
                 const key = button.dataset.key;
@@ -242,16 +242,13 @@
             if (activeAnimations.has(element)) {
                 cancelAnimationFrame(activeAnimations.get(element));
             }
-
             const range = end - start;
             const startTime = performance.now();
             function step(currentTime) {
                 const elapsed = currentTime - startTime;
                 let t = Math.min(elapsed / duration, 1);
                 const progress = t * t * (3 - 2 * t);
-                
                 element.textContent = Math.floor(start + range * progress);
-
                 if (t < 1) { 
                     const id = requestAnimationFrame(step);
                     activeAnimations.set(element, id);
@@ -280,16 +277,28 @@
 
                     const mappedKey = TYPE_MAP[key];
                     if (!mappedKey) return;
-
                     RECORD_IDS[mappedKey] = recordId;
-                    
+
                     let element;
                     if (mappedKey === "attendees")  element = document.getElementById("aCount");
                     if (mappedKey === "interviews") element = document.getElementById("iCount");
                     if (mappedKey === "jobs")       element = document.getElementById("jCount");
 
                     const startVal = parseInt(element.textContent, 10) || 0;
-                    if (startVal !== count) animateCount(element, startVal, count, 800);
+                    if (startVal !== count) {
+                        animateCount(element, startVal, count, 800);
+                        if (startVal < count && document.body.classList.contains("tv-mode")) {
+                            const dim = element.getBoundingClientRect();
+                            confetti({ 
+                                position: { 
+                                    x: dim.x + dim.width/2, 
+                                    y: dim.y + dim.height/2
+                                }, 
+                                count: 200, 
+                                size: 2 
+                            });
+                        }
+                    }
                 });
             }
             catch (error) {
@@ -318,13 +327,13 @@
             }
         }
 
+        /* check database for changes every 10 seconds */
         fetchData();
         setInterval(fetchData, 10000);
 
+        /* update time every 5 seconds */
         getFormattedTime();
         setInterval(getFormattedTime, 5000);
-
-
 
         // setInterval(() => {
         //     const card = document.getElementById("attendees")
@@ -333,9 +342,15 @@
         //     const startVal = parseInt(numberId.textContent, 10) || 0;
         //     const newVal = Math.floor(Math.random() * 1000);
         //     animateCount(numberId, startVal, newVal, 800);
+
+        //     const dim = card.getBoundingClientRect();
+        //     confetti({ position: { x: dim.x + dim.width / 2, y: dim.y + dim.height / 2 } });
+        //     console.log(card.getBoundingClientRect());
         // }, 5000);
 
-
+        // window.addEventListener("click", (event) => {
+        //     confetti({ position: { x: event.clientX, y: event.clientY }, size: 2 });
+        // });
 
     </script>
 </body>
